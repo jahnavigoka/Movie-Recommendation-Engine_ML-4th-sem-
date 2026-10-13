@@ -1,5 +1,6 @@
-
 import streamlit as st
+from recommender import movies as content_movies, recommend_movies
+from collaborative import movies as collaborative_movies, recommend_collaborative
 
 st.set_page_config(
     page_title="CineMatch",
@@ -7,50 +8,12 @@ st.set_page_config(
     layout="wide"
 )
 
-# Temporary sample results for Day 1.
-# We will connect the real ML model on Day 2.
-sample_movies = {
-    "Avatar": [
-        "Guardians of the Galaxy",
-        "John Carter",
-        "Star Trek",
-        "The Avengers",
-        "Aliens"
-    ],
-    "Titanic": [
-        "Romeo + Juliet",
-        "The Great Gatsby",
-        "Atonement",
-        "Pearl Harbor",
-        "The Notebook"
-    ],
-    "Iron Man": [
-        "Iron Man 2",
-        "The Avengers",
-        "Captain America: The First Avenger",
-        "Thor",
-        "Ant-Man"
-    ],
-    "The Dark Knight Rises": [
-        "The Dark Knight",
-        "Batman Begins",
-        "Man of Steel",
-        "Batman",
-        "Watchmen"
-    ]
-}
-
 st.title("🎬 CineMatch")
 st.subheader("Discover your next favourite movie")
 
 st.write(
-    "Explore movie recommendations based on movie content "
-    "and, later, user rating preferences."
-)
-
-st.info(
-    "Day 1 preview: sample recommendations are displayed "
-    "until the machine learning model is connected."
+    "Get movie recommendations using movie content "
+    "or user rating preferences."
 )
 
 method = st.radio(
@@ -59,32 +22,26 @@ method = st.radio(
     horizontal=True
 )
 
-movie_title = st.selectbox(
-    "Choose a movie",
-    list(sample_movies.keys())
-)
+if method == "Content-Based":
+    movie_titles = sorted(content_movies["title"].dropna().unique())
+else:
+    movie_titles = sorted(collaborative_movies["title"].dropna().unique())
+
+movie_title = st.selectbox("Choose a movie", movie_titles)
 
 if st.button("Recommend Movies", type="primary"):
+    with st.spinner("Finding recommendations..."):
+        if method == "Content-Based":
+            recommendations = recommend_movies(movie_title)
+        else:
+            recommendations = recommend_collaborative(movie_title)
+
     st.subheader(f"Movies recommended for: {movie_title}")
 
-    if method == "Content-Based":
-        recommendations = sample_movies[movie_title]
+    if recommendations:
+        for i, movie in enumerate(recommendations, start=1):
+            st.write(f"**{i}.** {movie}")
     else:
-        recommendations = [
-            "The Avengers",
-            "Inception",
-            "Interstellar",
-            "The Prestige",
-            "The Matrix"
-        ]
+        st.warning("No recommendations found for this movie.")
 
-    columns = st.columns(5)
-
-    for i, movie in enumerate(recommendations):
-        with columns[i]:
-            st.markdown(f"### {i + 1}")
-            st.write(movie)
-
-st.caption(
-    "CineMatch — Student Machine Learning Project"
-)
+st.caption("CineMatch — Student Machine Learning Project")
