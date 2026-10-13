@@ -1,7 +1,7 @@
-# CineMatch — Movie Recommendation Engine
+# MovieVerse — Movie Recommendation Engine
 
 ## Project Overview
-CineMatch is a movie recommendation system that suggests movies based on movie content and user rating preferences.
+MovieVerse is a movie recommendation system that suggests movies based on movie content and user rating preferences.
 
 ## Features
 - Content-Based Filtering using TF-IDF and cosine similarity.
